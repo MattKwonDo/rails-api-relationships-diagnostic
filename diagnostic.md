@@ -5,7 +5,7 @@ Place your responses inside the fenced code-blocks where indivated by comments.
 1.  Describe a reason why a join tables may be valuable.
 
   ```md
-    # < Your Response Here >
+    so that you know which tables are related
   ```
 
 1.  Provide a database table structure and explain the Entity Relationship that
@@ -15,23 +15,46 @@ Place your responses inside the fenced code-blocks where indivated by comments.
   join table with references to `Movies` and `Profiles`.
 
   ```md
-    # < Your Response Here >
+    Profiles
+      id
+      given_name
+      surname
+      email
+
+    Movies
+      id
+      title
+      release_date
+      length
+
+    Favorites
+      id
+      profile_id
+      movie_id
+
+    profiles can has_many favorite movies, favorite movies can has_many profiles
   ```
 
 1.  For the above example, what needs to be added to the Model files?
 
   ```rb
   class Profile < ActiveRecord::Base
+    has_many :movies, through: :favorites
+    has_many :favorites, dependent: :destroy
   end
   ```
 
   ```rb
   class Movie < ActiveRecord::Base
+    has_many :profiles, through: :favorites
+    has_many :favorites, dependent: :destroy
   end
   ```
 
   ```rb
   class Favorite < ActiveRecord::Base
+    belongs_to :profile, inverse_of: :movies
+    belongs_to :movie, inverse_of: :movies
   end
   ```
 
@@ -40,11 +63,13 @@ like to show all movies favorited by a profile on
 `http://localhost:3000/profiles/1`
 
   ```md
-    # < Your Response Here >
+    Serializers allow us to filter what is returned in a GET request
   ```
 
   ```rb
   class ProfileSerializer < ActiveModel::Serializer
+    attributes :id, :movie
+    has_many :movies
   end
   ```
 
@@ -52,13 +77,15 @@ like to show all movies favorited by a profile on
 the above `Movies` and `Profiles`.
 
   ```sh
-    # < Your Response Here >
+    bin/rails generate scaffold Favorites profile_id:integer movie_id:integer
   ```
 
 1.  What is `Dependent: Destroy` and where/why would we use it?
 
   ```md
-    # < Your Response Here >
+    Dependent destroy is a method that will destroy dependents in a given table.
+    We have used it to destroy the records in a join table related to records
+    that we destroyed in another table.
   ```
 
 1.  Think of **ANY** example where you would have a one-to-many relationship as well
@@ -66,5 +93,6 @@ as a many-to-many relationship in an application. You only need to list the
 description about the resources and how they relate to one another.
 
   ```md
-    # < Your Response Here >
+    For my project I was thinking of doing a ski list app, where one user has a
+    series of many lists of items, but the many items can be on many lists.
   ```
